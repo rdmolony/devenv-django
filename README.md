@@ -1,4 +1,4 @@
-# `devenv-poetry`
+# `devenv-django`
 
 This repo demonstrates using [devenv.sh](https://devenv.sh/) alongside [`poetry`](https://python-poetry.org/docs/) for building `Django` development environment.
 
