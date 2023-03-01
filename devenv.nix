@@ -68,7 +68,7 @@ rec {
       echo "Waiting for Postgres to start on ${db_host}:${db_port} ..."
       
       timer=0;
-      n_seconds=5;
+      n_seconds=20;
       while true;
       do
         if nc -z ${db_host} ${db_port}; then
