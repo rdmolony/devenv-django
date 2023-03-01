@@ -14,6 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Restore python poetry dependencies from cache
+      uses: actions/cache/restore@v3
+      id: cache
+      with:
+        path:  ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
     - uses: cachix/install-nix-action@v19
       with:
         install_url: https://releases.nixos.org/nix/nix-2.13.3/install
@@ -26,3 +32,9 @@ jobs:
       shell: sh
     - run: devenv ci
     - run: devenv shell run-tests
+    - name: Cache python dependencies
+      uses: actions/cache/save@v3
+      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
