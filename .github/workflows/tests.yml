@@ -1,0 +1,42 @@
+name: "Test"
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  push:
+    branches: [ "master" ]
+
+env:
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore python poetry dependencies from cache
+      uses: actions/cache/restore@v3
+      id: cache
+      with:
+        path:  ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+    - uses: cachix/install-nix-action@v19
+      with:
+        install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+    - uses: cachix/cachix-action@v12
+      with:
+        name: devenv
+    - name: Install devenv.sh
+      run: nix profile install github:cachix/devenv/v0.5
+      shell: sh
+    - run: devenv ci
+    - run: devenv shell run-tests
+    - name: Show Postgres startup logs
+      if: always()
+      run: cat /tmp/postgres.log
+    - name: Cache python dependencies
+      uses: actions/cache/save@v3
+      if: always() && steps.cache.outputs.cache-hit != 'true'
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
