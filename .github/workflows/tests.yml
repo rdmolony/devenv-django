@@ -37,7 +37,7 @@ jobs:
       run: cat /tmp/postgres.log
     - name: Cache python dependencies
       uses: actions/cache/save@v3
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: always() && steps.cache.outputs.cache-hit != 'true'
       with:
         path: ~/.cache/pypoetry
         key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
