@@ -43,7 +43,7 @@ in
   };
 
   scripts = {
-    start-db.exec = ''
+    start-processes-in-background.exec = ''
       echo
       psql --version
 
@@ -78,7 +78,7 @@ in
       done
     '';
     run-tests.exec = ''
-      start-db
+      start-processes-in-background
       wait-for-db || exit 1
       python manage.py collectstatic --noinput
       python manage.py test
