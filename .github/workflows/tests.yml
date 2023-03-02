@@ -33,7 +33,7 @@ jobs:
     - run: devenv shell run-tests
     - name: Show Postgres startup logs
       if: always()
-      run: cat /tmp/postgres.log
+      run: cat /tmp/devenv.log
     - name: Cache python dependencies
       uses: actions/cache/save@v3
       if: always() && steps.cache.outputs.cache-hit != 'true'

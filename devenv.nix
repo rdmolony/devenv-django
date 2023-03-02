@@ -41,6 +41,7 @@ in
 
   scripts = {
     create-poetry-environment.exec = ''
+      echo
       echo "Building poetry virtual environment..."
 
       poetry env use ${python_version}
@@ -52,29 +53,28 @@ in
       poetry install
     '';
     start-db.exec = ''
+      echo
       psql --version
 
       # Start Postgres if not running ...
       if ! nc -z ${db_host} ${db_port};
       then
-        echo "Starting Postgres in background on ${db_host}:${db_port} ..."
-        # NOTE: This is a hack to get Postgres to run in the background
-        # ... that relies on `devenv` naming the process `postgres`
-        # ... startup shell as `start-postgres`
-        nohup start-postgres > /tmp/postgres.log 2>&1 &
+        echo "Starting Database in the background on ${db_host}:${db_port} ..."
+        nohup devenv up > /tmp/devenv.log 2>&1 &
       fi
     '';
     wait-for-db.exec = ''
-      echo "Waiting for Postgres to start on ${db_host}:${db_port} ..."
+      echo
+      echo "Waiting for Database to start on ${db_host}:${db_port} ..."
       
       timer=0;
-      n_seconds=20;
+      n_deciseconds=200;
       while true;
       do
         if nc -z ${db_host} ${db_port}; then
           echo "Database is running!"
           break
-        elif [ $timer -gt $n_seconds ]; then
+        elif [ $timer -gt $n_deciseconds ]; then
           echo "Database failed to launch!"
           break
         else
