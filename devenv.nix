@@ -8,7 +8,12 @@ let
   python_version = "3.10";
 in
 {
-  packages = [ pkgs.git pkgs.postgresql_14 pkgs.python310 pkgs.poetry ];
+  packages = [ pkgs.git pkgs.postgresql_14 ];
+
+  languages.python = {
+    enable = true;
+    poetry.enable = true;
+  };
 
   env = {
     PYTHON_VERSION = python_version;
@@ -18,8 +23,6 @@ in
   };
 
   enterShell = ''
-    create-poetry-environment
-
     # Activate poetry environment on shell entry
     # https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
     VIRTUAL_ENV=`poetry env info --path` && export VIRTUAL_ENV 
@@ -40,18 +43,6 @@ in
   };
 
   scripts = {
-    create-poetry-environment.exec = ''
-      echo
-      echo "Building poetry virtual environment..."
-
-      poetry env use ${python_version}
-
-      echo "Using versions ..."
-      python --version
-      poetry --version
-
-      poetry install
-    '';
     start-db.exec = ''
       echo
       psql --version
