@@ -65,27 +65,30 @@ in
     '';
     wait-for-db.exec = ''
       echo
-      echo "Waiting for Database to start on ${db_host}:${db_port} ..."
+      echo "Waiting for database to start .."
+      echo "(if wait exceeds 100%, check /tmp/devenv.log for errors!)"
       
       timer=0;
-      n_deciseconds=200;
+      n_steps=99;
       while true;
       do
         if nc -z ${db_host} ${db_port}; then
-          echo "Database is running!"
-          break
-        elif [ $timer -gt $n_deciseconds ]; then
-          echo "Database failed to launch!"
-          break
+          printf "\nDatabase is running!\n\n"
+          exit 0
+        elif [ $timer -gt $n_steps ]; then
+          printf "\nDatabase failed to launch!\n\n"
+          exit 1
         else
           sleep 0.1
           let timer++
+          printf "%-*s" $((timer+1)) '[' | tr ' ' '#'
+          printf "%*s%3d%%\r"  $((100-timer))  "]" "$timer"
         fi
       done
     '';
     run-tests.exec = ''
       start-db
-      wait-for-db
+      wait-for-db || exit 1
       python manage.py collectstatic --noinput
       python manage.py test
     '';
