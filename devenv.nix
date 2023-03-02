@@ -68,13 +68,13 @@ in
       echo "Waiting for Database to start on ${db_host}:${db_port} ..."
       
       timer=0;
-      n_seconds=20;
+      n_deciseconds=200;
       while true;
       do
         if nc -z ${db_host} ${db_port}; then
           echo "Database is running!"
           break
-        elif [ $timer -gt $n_seconds ]; then
+        elif [ $timer -gt $n_deciseconds ]; then
           echo "Database failed to launch!"
           break
         else
