@@ -30,13 +30,33 @@ jobs:
       run: nix profile install github:cachix/devenv/v0.5
       shell: sh
     - run: devenv ci
-    - run: devenv shell run-tests
-    - name: Show Postgres startup logs
+    - name: Install dependencies
+      run: |
+        OUTPUT=$(devenv shell echo "Dependencies installed!")
+
+        # If poetry environment is broken then recache all Python dependencies ...
+        if [[ "$OUTPUT" == *"POETRY_STATUS=broken"* ]]; then
+          echo "POETRY_STATUS=broken" >> $GITHUB_ENV
+        else
+          echo "POETRY_STATUS=clean" >> $GITHUB_ENV
+        fi
+
+        echo $OUTPUT >> /tmp/dependencies.log
+    - name: Run tests
+      run: devenv shell test-all
+    - name: Show logs from dependency installation
+      if: always()
+      run: cat /tmp/dependencies.log
+    - name: Show logs from test database setup
       if: always()
       run: cat /tmp/devenv.log
+    - name: Show environment variables
+      if: always()
+      run: |
+        echo "POETRY_STATUS=${{ env.POETRY_STATUS }}"
     - name: Cache python dependencies
       uses: actions/cache/save@v3
-      if: always() && steps.cache.outputs.cache-hit != 'true'
+      if: always() && steps.cache.outputs.cache-hit != 'true' || ${{ env.POETRY_STATUS }} == 'broken'
       with:
         path: ~/.cache/pypoetry
         key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}

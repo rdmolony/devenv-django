@@ -37,5 +37,5 @@ Specifically,  `devenv` uses `nix` to install system level packages like `postgr
 
 `devenv` enables defining scripts in `devenv.nix` that are automatically added to the shell path ...
 
-- Run tests via `run-tests`
-- Launch a development server via `devenv up`
+- Launch a development server via `launch-django`
+- Run tests via `test-all`
